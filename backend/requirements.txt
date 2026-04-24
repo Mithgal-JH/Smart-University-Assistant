@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+python-dotenv
+
+# AI
+sentence-transformers
+scikit-learn
+langchain
+langchain-community

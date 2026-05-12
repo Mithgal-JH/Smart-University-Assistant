@@ -75,5 +75,4 @@ def detect_intent(query: str) -> str:
         return "delete_course"
     if "get_courses" in intent:
         return "get_courses"
-
     return "normal"

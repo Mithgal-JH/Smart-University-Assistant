@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>المساعد الجامعي الذكي</title>
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <!-- Login -->
+  <div id="loginScreen">
+    <div class="login-card">
+      <div class="login-logo" aria-hidden="true">🎓</div>
+      <div>
+        <h1 class="login-title">المساعد الجامعي الذكي</h1>
+        <p class="login-sub">بوابة موحّدة لموادك وللإجابة عن أسئلتك الجامعية</p>
+      </div>
+      <button type="button" class="google-btn" onclick="loginWithGoogle()">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05" />
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+        </svg>
+        تسجيل الدخول بـ Google
+      </button>
+      <p id="loginError" role="alert"></p>
+    </div>
+  </div>
+
+  <!-- Authenticated app -->
+  <div id="appShell">
+    <header class="app-navbar">
+      <div class="nav-brand">
+        <div class="nav-brand-mark" aria-hidden="true">🎓</div>
+        <div class="nav-brand-text">
+          <div class="nav-brand-title">بوابة الطالب</div>
+          <div class="nav-brand-sub">مساعد ذكي · إدارة المواد · أسئلة الجامعة</div>
+        </div>
+      </div>
+      <div class="nav-actions">
+        <div class="nav-user" title="">
+          <img id="userAvatar" src="" alt="" width="32" height="32" />
+          <span id="userName"></span>
+        </div>
+        <button type="button" class="btn btn-danger" onclick="logout()">خروج</button>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <div class="dashboard-grid dashboard-grid-top">
+        <section class="card welcome-hero" aria-labelledby="dashWelcomeHeading">
+          <h1 id="dashWelcomeHeading">مرحباً، <span id="dashWelcomeName">—</span></h1>
+          <p>من هنا تتابع ملخصك الأكاديمي وموادك، ويمكنك فتح المساعد الذكي في أي وقت من الزر أسفل الشاشة.</p>
+          <div class="welcome-tags">
+            <span class="tag">إضافة وحذف المواد عبر المحادثة</span>
+            <span class="tag">أسئلة السياسات والخدمات</span>
+            <span class="tag">واجهة عربية كاملة</span>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="studentCardTitle">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title" id="studentCardTitle">البيانات الأكاديمية</h2>
+              <p class="card-desc">المعلومات المستخدمة في الردود الشخصية</p>
+            </div>
+          </div>
+          <div id="studentPanel">
+            <div class="empty-hint" id="studentLoading">جاري التحميل…</div>
+            <div id="studentContent" hidden>
+              <div class="student-grid">
+                <div class="stat">
+                  <div class="stat-label">التخصص</div>
+                  <div class="stat-value" id="studentMajor">—</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-label">المعدل</div>
+                  <div class="stat-value" id="studentGpa">—</div>
+                </div>
+              </div>
+            </div>
+            <div id="studentEmpty" class="empty-state" hidden>
+              <div class="empty-state-icon">📋</div>
+              <p>لا توجد بيانات طالب مسجّلة بعد.</p>
+              <p class="empty-hint">يمكن إضافتها لاحقاً من لوحة الإدارة أو عبر الـ API.</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <section class="card dashboard-grid" style="margin-top: 1.25rem" aria-labelledby="coursesCardTitle">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title" id="coursesCardTitle">جدول المواد</h2>
+            <p class="card-desc">يتم التحديث تلقائياً عند الإضافة أو الحذف من المحادثة أو من الجدول</p>
+          </div>
+          <button type="button" class="btn btn-ghost btn-primary" onclick="refreshCourses()" id="btnRefreshCourses">
+            تحديث
+          </button>
+        </div>
+        <div class="table-wrap" id="coursesTableWrap">
+          <table class="data-table" id="coursesTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>المادة</th>
+                <th>الدكتور</th>
+                <th>الأيام</th>
+                <th>الوقت</th>
+                <th class="col-actions">إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="coursesTableBody"></tbody>
+          </table>
+        </div>
+        <div id="coursesEmpty" class="empty-state" hidden>
+          <div class="empty-state-icon">📚</div>
+          <p><strong>لا توجد مواد مسجّلة</strong></p>
+          <p class="empty-hint">اطلب من المساعد إضافة مادة، أو استخدم صيغة مثل: أضف مادة رياضيات مع دكتور أحمد يوم الاثنين الساعة 10</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Floating assistant -->
+    <button type="button" id="chatFab" aria-label="فتح المساعد الذكي" onclick="toggleChatDrawer()">
+      <span class="fab-pulse" aria-hidden="true"></span>
+      <span aria-hidden="true">💬</span>
+    </button>
+
+    <div id="chatBackdrop" onclick="closeChatDrawer()"></div>
+
+    <aside id="chatDrawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" aria-hidden="true">
+      <div class="drawer-header">
+        <div class="drawer-header-info">
+          <div class="drawer-title" id="drawerTitle">المساعد الجامعي</div>
+          <div class="drawer-sub">مدعوم بالذكاء الاصطناعي · RAG وسياسات الجامعة</div>
+        </div>
+        <div class="drawer-toolbar">
+          <button type="button" class="btn btn-ghost" onclick="resetConversation()" title="مسح المحادثة محلياً">مسح المحادثة</button>
+          <button type="button" class="btn btn-icon btn-ghost" onclick="closeChatDrawer()" aria-label="إغلاق">✕</button>
+        </div>
+      </div>
+
+      <div id="chatMessages">
+        <div id="chatWelcome">
+          <div class="welcome-icon" aria-hidden="true">👋</div>
+          <h2>كيف أقدر أساعدك؟</h2>
+          <p>أضف موادك، احذفها، اعرضها، أو اسأل عن أي شيء يخص الجامعة.</p>
+        </div>
+      </div>
+
+      <div id="typing" aria-live="polite" aria-busy="false">
+        <div class="typing-inner">
+          <div class="typing-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+          <span>المساعد يكتب…</span>
+        </div>
+      </div>
+
+      <div class="chat-footer">
+        <textarea
+          id="userInput"
+          rows="1"
+          placeholder="اكتب رسالتك هنا…"
+          autocomplete="off"
+        ></textarea>
+        <button type="button" class="send-btn" id="sendBtn" onclick="sendMessage()" aria-label="إرسال">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" /></svg>
+        </button>
+      </div>
+    </aside>
+  </div>
+
+  <div id="toastRegion" aria-live="polite"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getAuth,
+      signInWithPopup,
+      signOut,
+      GoogleAuthProvider,
+      onAuthStateChanged,
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBjtyZYQdrHLkWBL2rtQmti1rMR9R096V0",
+      authDomain: "smart-university-assista-ea1d3.firebaseapp.com",
+      projectId: "smart-university-assista-ea1d3",
+      storageBucket: "smart-university-assista-ea1d3.firebasestorage.app",
+      messagingSenderId: "239226635012",
+      appId: "1:239226635012:web:1d45af7564c52eadcb8651",
+    };
+
+    const BACKEND_URL = "http://localhost:8000";
+    const CHAT_STORAGE_PREFIX = "ppu_chat_v1_";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    let currentUser = null;
+    let chatHistory = [];
+    let drawerOpen = false;
+
+    const el = (id) => document.getElementById(id);
+
+    function chatStorageKey(uid) {
+      return CHAT_STORAGE_PREFIX + uid;
+    }
+
+    function saveChatToStorage() {
+      if (!currentUser) return;
+      try {
+        localStorage.setItem(chatStorageKey(currentUser.uid), JSON.stringify(chatHistory));
+      } catch (e) {
+        console.warn("Could not persist chat", e);
+      }
+    }
+
+    function loadChatFromStorage(uid) {
+      try {
+        const raw = localStorage.getItem(chatStorageKey(uid));
+        chatHistory = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(chatHistory)) chatHistory = [];
+      } catch {
+        chatHistory = [];
+      }
+    }
+
+    function scrollChatToBottom() {
+      const box = el("chatMessages");
+      requestAnimationFrame(() => {
+        box.scrollTop = box.scrollHeight;
+      });
+    }
+
+    function formatText(text) {
+      const esc = String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+      return esc.replace(/\n/g, "<br />");
+    }
+
+    function setWelcomeVisible(show) {
+      const w = el("chatWelcome");
+      if (!w) return;
+      w.hidden = !show;
+    }
+
+    function clearMessageNodes() {
+      const box = el("chatMessages");
+      box.querySelectorAll(".message").forEach((n) => n.remove());
+    }
+
+    function renderChatFromHistory() {
+      clearMessageNodes();
+      setWelcomeVisible(chatHistory.length === 0);
+      const labelUser = "أنت";
+      const labelBot = "المساعد";
+      for (const m of chatHistory) {
+        const wrap = document.createElement("div");
+        wrap.className = `message ${m.role}`;
+        wrap.innerHTML = `
+          <div class="bubble-wrap">
+            <div class="bubble-meta">${m.role === "user" ? labelUser : labelBot}</div>
+            <div class="bubble">${formatText(m.text)}</div>
+          </div>`;
+        el("chatMessages").appendChild(wrap);
+      }
+      scrollChatToBottom();
+    }
+
+    function appendMessage(role, text, { persist = true } = {}) {
+      if (persist) {
+        chatHistory.push({ role, text });
+        saveChatToStorage();
+      }
+      setWelcomeVisible(false);
+      const wrap = document.createElement("div");
+      wrap.className = `message ${role}`;
+      const labelUser = "أنت";
+      const labelBot = "المساعد";
+      wrap.innerHTML = `
+        <div class="bubble-wrap">
+          <div class="bubble-meta">${role === "user" ? labelUser : labelBot}</div>
+          <div class="bubble">${formatText(text)}</div>
+        </div>`;
+      el("chatMessages").appendChild(wrap);
+      scrollChatToBottom();
+    }
+
+    function showTyping(show) {
+      const t = el("typing");
+      t.classList.toggle("is-visible", show);
+      t.setAttribute("aria-busy", show ? "true" : "false");
+    }
+
+    function setSending(sending) {
+      el("userInput").disabled = sending;
+      el("sendBtn").disabled = sending;
+    }
+
+    /** Keeps typing flow: focus after input is re-enabled (disabled inputs cannot hold focus). */
+    function focusChatInput() {
+      if (!drawerOpen) return;
+      const input = el("userInput");
+      const apply = () => {
+        if (input.disabled) return;
+        try {
+          input.focus({ preventScroll: true });
+        } catch (_) {
+          input.focus();
+        }
+      };
+      requestAnimationFrame(() => requestAnimationFrame(apply));
+    }
+
+    async function bearerHeaders(withJson = false) {
+      const token = await currentUser.getIdToken();
+      const h = { Authorization: `Bearer ${token}` };
+      if (withJson) h["Content-Type"] = "application/json";
+      return h;
+    }
+
+    function toast(msg, type = "info") {
+      const region = el("toastRegion");
+      const n = document.createElement("div");
+      n.className = "toast" + (type === "error" ? " error" : "");
+      n.textContent = msg;
+      region.appendChild(n);
+      setTimeout(() => n.remove(), 4200);
+    }
+
+    async function refreshCourses() {
+      if (!currentUser) return;
+      const tbody = el("coursesTableBody");
+      const empty = el("coursesEmpty");
+      const wrap = el("coursesTableWrap");
+      tbody.innerHTML = "";
+      wrap.hidden = false;
+      empty.hidden = true;
+      for (let i = 0; i < 3; i++) {
+        const tr = document.createElement("tr");
+        tr.className = "skeleton-row";
+        tr.innerHTML = "<td></td><td></td><td></td><td></td><td></td><td></td>";
+        tbody.appendChild(tr);
+      }
+      try {
+        const res = await fetch(`${BACKEND_URL}/me/courses`, { headers: await bearerHeaders() });
+        if (!res.ok) throw new Error(String(res.status));
+        const courses = await res.json();
+        tbody.innerHTML = "";
+        if (!courses.length) {
+          empty.hidden = false;
+          wrap.hidden = true;
+          return;
+        }
+        empty.hidden = true;
+        wrap.hidden = false;
+        courses.forEach((c, idx) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${idx + 1}</td>
+            <td>${escapeHtml(c.name)}</td>
+            <td>${escapeHtml(c.doctor)}</td>
+            <td>${escapeHtml(c.days)}</td>
+            <td>${escapeHtml(c.time)}</td>
+            <td class="col-actions">
+              <button type="button" class="btn btn-danger" data-id="${c.id}">حذف</button>
+            </td>`;
+          tr.querySelector("button").onclick = () => deleteCourseRow(c.id, c.name);
+          tbody.appendChild(tr);
+        });
+      } catch (e) {
+        console.error(e);
+        tbody.innerHTML = "";
+        empty.hidden = false;
+        wrap.hidden = true;
+        toast("تعذّر تحميل المواد. تأكد أن الخادم يعمل وأن المسار /me/courses متاح.", "error");
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    async function deleteCourseRow(id, name) {
+      if (!currentUser) return;
+      const ok = confirm(`حذف المادة «${name}»؟`);
+      if (!ok) return;
+      try {
+        const res = await fetch(`${BACKEND_URL}/me/courses/${id}`, {
+          method: "DELETE",
+          headers: await bearerHeaders(),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        toast("تم حذف المادة");
+        await refreshCourses();
+      } catch (e) {
+        console.error(e);
+        toast("تعذّر حذف المادة", "error");
+      }
+    }
+
+    async function refreshStudent() {
+      const loading = el("studentLoading");
+      const content = el("studentContent");
+      const empty = el("studentEmpty");
+      loading.style.display = "block";
+      content.hidden = true;
+      empty.hidden = true;
+      try {
+        const res = await fetch(`${BACKEND_URL}/me/student`, { headers: await bearerHeaders() });
+        if (!res.ok) throw new Error(String(res.status));
+        const data = await res.json();
+        loading.style.display = "none";
+        if (data.student) {
+          el("studentMajor").textContent = data.student.major ?? "—";
+          el("studentGpa").textContent =
+            data.student.gpa != null ? String(data.student.gpa) : "—";
+          content.hidden = false;
+        } else {
+          empty.hidden = false;
+        }
+      } catch (e) {
+        console.error(e);
+        loading.style.display = "none";
+        empty.hidden = false;
+      }
+    }
+
+    function showLogin() {
+      el("loginScreen").style.display = "flex";
+      el("appShell").classList.remove("is-visible");
+      closeChatDrawer();
+      drawerOpen = false;
+    }
+
+    function showApp(user) {
+      el("loginScreen").style.display = "none";
+      el("appShell").classList.add("is-visible");
+      el("userName").textContent = user.displayName || user.email || "مستخدم";
+      el("dashWelcomeName").textContent = user.displayName?.split(" ")[0] || user.email?.split("@")[0] || "طالب";
+      const img = el("userAvatar");
+      if (user.photoURL) {
+        img.src = user.photoURL;
+        img.hidden = false;
+        img.alt = user.displayName || "";
+      } else {
+        img.removeAttribute("src");
+        img.hidden = true;
+      }
+    }
+
+    function openChatDrawer() {
+      drawerOpen = true;
+      el("chatDrawer").classList.add("is-open");
+      el("chatBackdrop").classList.add("is-open");
+      el("chatDrawer").setAttribute("aria-hidden", "false");
+      focusChatInput();
+      setTimeout(focusChatInput, 260);
+    }
+
+    function closeChatDrawer() {
+      drawerOpen = false;
+      el("chatDrawer").classList.remove("is-open");
+      el("chatBackdrop").classList.remove("is-open");
+      el("chatDrawer").setAttribute("aria-hidden", "true");
+    }
+
+    window.toggleChatDrawer = function () {
+      if (drawerOpen) closeChatDrawer();
+      else openChatDrawer();
+    };
+
+    window.closeChatDrawer = closeChatDrawer;
+
+    window.resetConversation = function () {
+      if (!currentUser) return;
+      const ok = confirm("مسح محادثتك من هذا الجهاز؟ لن يُحذف سجل المواد من الخادم.");
+      if (!ok) return;
+      chatHistory = [];
+      localStorage.removeItem(chatStorageKey(currentUser.uid));
+      clearMessageNodes();
+      setWelcomeVisible(true);
+      scrollChatToBottom();
+      toast("تم مسح المحادثة");
+    };
+
+    window.loginWithGoogle = async () => {
+      try {
+        el("loginError").style.display = "none";
+        await signInWithPopup(auth, provider);
+      } catch (e) {
+        console.error(e);
+        const err = el("loginError");
+        err.textContent = "فشل تسجيل الدخول. حاول مجدداً.";
+        err.style.display = "block";
+      }
+    };
+
+    window.logout = async () => {
+      await signOut(auth);
+    };
+
+    window.sendMessage = async () => {
+      const input = el("userInput");
+      const query = input.value.trim();
+      if (!query || !currentUser) return;
+      input.value = "";
+      input.style.height = "auto";
+      appendMessage("user", query);
+      showTyping(true);
+      setSending(true);
+      try {
+        const res = await fetch(`${BACKEND_URL}/chat`, {
+          method: "POST",
+          headers: await bearerHeaders(true),
+          body: JSON.stringify({ query }),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        appendMessage("bot", data.response);
+        await refreshCourses();
+      } catch (e) {
+        console.error(e);
+        appendMessage("bot", "تعذّر الاتصال بالخادم. تحقق من تشغيل الـ Backend على " + BACKEND_URL);
+      } finally {
+        showTyping(false);
+        setSending(false);
+        focusChatInput();
+      }
+    };
+
+    window.refreshCourses = refreshCourses;
+
+    function handleKey(e) {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        window.sendMessage();
+      }
+    }
+
+    el("userInput").addEventListener("keydown", handleKey);
+    el("userInput").addEventListener("input", function () {
+      this.style.height = "auto";
+      this.style.height = Math.min(this.scrollHeight, 120) + "px";
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && drawerOpen) closeChatDrawer();
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      currentUser = user;
+      if (user) {
+        showApp(user);
+        loadChatFromStorage(user.uid);
+        renderChatFromHistory();
+        await Promise.all([refreshStudent(), refreshCourses()]);
+      } else {
+        showLogin();
+        chatHistory = [];
+        clearMessageNodes();
+        setWelcomeVisible(true);
+      }
+    });
+  </script>
+</body>
+</html>

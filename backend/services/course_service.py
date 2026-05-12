@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session
 def add_course(user_id, name, doctor, days, time):
     db = SessionLocal()
     try:
-        # منع التكرار بالاسم (case-insensitive)
         name_normalized = name.strip()
         existing = db.query(Course).filter(
             Course.user_id == user_id,

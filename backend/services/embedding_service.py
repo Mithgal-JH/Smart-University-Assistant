@@ -1,7 +1,6 @@
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
-# 🔥 model خفيف وسريع
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
 
@@ -25,7 +24,6 @@ def find_top_matches(query, courses, threshold=0.5):
         if score > threshold:
             results.append((c, score))
 
-    # ترتيب
     results = sorted(results, key=lambda x: x[1], reverse=True)
 
     return results

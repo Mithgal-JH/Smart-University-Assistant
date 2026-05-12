@@ -9,3 +9,6 @@ sentence-transformers
 scikit-learn
 langchain
 langchain-community
+
+chromadb 
+requests

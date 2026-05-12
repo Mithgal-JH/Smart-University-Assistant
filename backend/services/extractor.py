@@ -2,10 +2,10 @@ import json
 import re
 from services.llm import ask_llm_messages
 
-
 # =====================================
 # 🚀 MAIN FUNCTION
 # =====================================
+
 
 def extract_course_details(text: str):
 
@@ -37,6 +37,7 @@ def extract_course_details(text: str):
 # ⚡ REGEX EXTRACTOR
 # =====================================
 
+
 def regex_extract(text: str):
 
     # 🟡 course
@@ -44,32 +45,40 @@ def regex_extract(text: str):
     course = course_match.group(1).strip() if course_match else "غير معروف"
 
     # 🟡 doctor
-    doctor_match = re.search(r"(?:مع\s+)?(?:الدكتور|دكتور|د\.)\s+(\S+(?:\s+\S+)?)", text)
+    doctor_match = re.search(
+        r"(?:مع\s+)?(?:الدكتور|دكتور|د\.)\s+(\S+(?:\s+\S+)?)", text
+    )
     doctor = doctor_match.group(1).strip() if doctor_match else "غير معروف"
 
     # 🟡 days — يجمع أكثر من يوم لو موجودين
-    day_names = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"]
+    day_names = [
+        "الأحد",
+        "الاثنين",
+        "الثلاثاء",
+        "الأربعاء",
+        "الخميس",
+        "الجمعة",
+        "السبت",
+    ]
     found_days = re.findall("|".join(day_names), text)
     days = " و ".join(found_days) if found_days else "غير معروف"
 
     # 🟡 time — يشترط كلمة ساعة أو صباحاً أو مساءً بجانب الرقم
     # (منع استخراج أي رقم عشوائي في الجملة كـ "3 وحدات")
-    time_match = re.search(r"(?:الساعة\s*)?(\d{1,2}(?::\d{2})?)\s*(?:صباحاً|مساءً|AM|PM|ص|م)", text)
+    time_match = re.search(
+        r"(?:الساعة\s*)?(\d{1,2}(?::\d{2})?)\s*(?:صباحاً|مساءً|AM|PM|ص|م)", text
+    )
     if not time_match:
         time_match = re.search(r"الساعة\s+(\d{1,2}(?::\d{2})?)", text)
     time = time_match.group(1).strip() if time_match else "غير معروف"
 
-    return {
-        "course": course,
-        "doctor": doctor,
-        "days": days,
-        "time": time
-    }
+    return {"course": course, "doctor": doctor, "days": days, "time": time}
 
 
 # =====================================
 # 🧠 LLM EXTRACTOR
 # =====================================
+
 
 def llm_extract(text: str):
     prompt = f"""
@@ -96,9 +105,7 @@ def llm_extract(text: str):
 """
 
     try:
-        response = ask_llm_messages([
-            {"role": "user", "content": prompt}
-        ])
+        response = ask_llm_messages([{"role": "user", "content": prompt}])
 
         cleaned = clean_response(response)
         return safe_json_load(cleaned)
@@ -111,6 +118,7 @@ def llm_extract(text: str):
 # =====================================
 # 🧠 CLEANING
 # =====================================
+
 
 def clean_response(response):
     cleaned = response.strip()
@@ -140,6 +148,7 @@ def safe_json_load(json_text):
 # 🛡️ VALIDATION (ANTI-HALLUCINATION)
 # =====================================
 
+
 def validate(value, text):
     if not value or value == "غير معروف":
         return "غير معروف"
@@ -157,12 +166,13 @@ def validate(value, text):
 # 🔴 FALLBACK
 # =====================================
 
+
 def fallback():
     return {
         "course": "غير معروف",
         "doctor": "غير معروف",
         "days": "غير معروف",
-        "time": "غير معروف"
+        "time": "غير معروف",
     }
 
 
@@ -170,14 +180,14 @@ def fallback():
 # 🧠 COURSE NAME EXTRACT
 # =====================================
 
+
 def extract_course_name(text: str):
     # 🔥 regex سريع
-    match = re.search(r"(?:مادة|مساق)\s+(.+)", text)
+    match = re.search(r"(?:أضف|اضف|ضيف|ضيفلي|سجل|سجللي|سجلني|مادة|مساق)\s+(.+)", text)
 
     if match:
         return match.group(1).strip()
 
-    # fallback → LLM
     prompt = f"""
 استخرج اسم المادة فقط من النص.
 إذا ما في اسم واضح، أعد كلمة "غير معروف" فقط.
@@ -189,9 +199,7 @@ def extract_course_name(text: str):
 """
 
     try:
-        response = ask_llm_messages([
-            {"role": "user", "content": prompt}
-        ])
+        response = ask_llm_messages([{"role": "user", "content": prompt}])
 
         name = response.strip().replace("مادة", "").strip()
 

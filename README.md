@@ -63,4 +63,3 @@ Open: http://localhost:8000/docs
 
 - Designed as a practical AI system (not production-scale)
 - Focus on reliable LLM behavior and controlled flows
-- Memory resets on server restart

@@ -1,27 +1,27 @@
 /* =============================================
-   Design tokens — dark SaaS university portal
+   Design tokens — light, eye-friendly UI
 ============================================= */
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap");
 
 :root {
-  --bg: #0a0c10;
-  --bg-elevated: #12151c;
-  --surface: #161a24;
-  --surface-2: #1e2330;
-  --surface-3: #262c3d;
-  --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.14);
-  --text: #eef0f6;
-  --text-muted: #8b93ab;
-  --text-subtle: #5c6478;
-  --accent: #5b8cff;
-  --accent-hover: #7aa3ff;
-  --accent-muted: rgba(91, 140, 255, 0.16);
-  --success: #3dd68c;
-  --danger: #ff6b7a;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
-  --shadow-lg: 0 24px 48px rgba(0, 0, 0, 0.55);
+  --bg: #eef1f7;
+  --bg-elevated: #f7f8fb;
+  --surface: #ffffff;
+  --surface-2: #f4f6fa;
+  --surface-3: #e6eaf2;
+  --border: rgba(15, 23, 42, 0.08);
+  --border-strong: rgba(15, 23, 42, 0.14);
+  --text: #1a2234;
+  --text-muted: #5a6578;
+  --text-subtle: #7a8496;
+  --accent: #4a6ee5;
+  --accent-hover: #3d5fd4;
+  --accent-muted: rgba(74, 110, 229, 0.12);
+  --success: #0d8968;
+  --danger: #c9364d;
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 20px 44px rgba(15, 23, 42, 0.1);
   --radius-sm: 8px;
   --radius: 12px;
   --radius-lg: 16px;
@@ -29,6 +29,14 @@
   --font: "IBM Plex Sans Arabic", "Segoe UI", system-ui, sans-serif;
   --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   --chat-drawer-width: min(100vw - 1rem, 440px);
+  /* Inline UI icons — stroke weight + sizes aligned with original emoji scale */
+  --icon-stroke: 1.5;
+  --icon-size-brand: 2rem;
+  --icon-size-nav: 1.15rem;
+  --icon-size-empty: 2.25rem;
+  --icon-size-welcome: 2.25rem;
+  --icon-size-fab: 1.35rem;
+  --icon-size-toolbar: 1.1rem;
 }
 
 *,
@@ -42,6 +50,34 @@
 html {
   font-size: 15px;
   -webkit-font-smoothing: antialiased;
+  color-scheme: light;
+}
+
+/* Unified inline SVG icons */
+.ui-icon {
+  display: block;
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.ui-icon--outline {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--icon-stroke);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* UA defaults fill shapes black; force outline-only drawing */
+.ui-icon--outline path,
+.ui-icon--outline rect,
+.ui-icon--outline circle,
+.ui-icon--outline ellipse,
+.ui-icon--outline line,
+.ui-icon--outline polyline,
+.ui-icon--outline polygon {
+  fill: none;
+  stroke: currentColor;
 }
 
 body {
@@ -62,8 +98,8 @@ body {
   padding: 2.5rem 1.5rem;
   min-height: 100dvh;
   background:
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(91, 140, 255, 0.18), transparent),
-    var(--bg);
+    radial-gradient(ellipse 90% 55% at 50% -15%, rgba(74, 110, 229, 0.12), transparent),
+    linear-gradient(180deg, #f5f7fc 0%, var(--bg) 45%);
   animation: fadeIn 0.45s ease;
 }
 
@@ -82,12 +118,17 @@ body {
   height: 4.5rem;
   margin: 0 auto;
   background: var(--accent-muted);
-  border: 1px solid rgba(91, 140, 255, 0.35);
+  border: 1px solid rgba(74, 110, 229, 0.28);
   border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
+  color: var(--accent);
+}
+
+.login-logo .ui-icon {
+  width: var(--icon-size-brand);
+  height: var(--icon-size-brand);
 }
 
 .login-title {
@@ -112,9 +153,9 @@ body {
   width: 100%;
   margin-top: 0.5rem;
   padding: 0.9rem 1.25rem;
-  background: #fff;
-  color: #1a1d26;
-  border: none;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   font-size: 0.95rem;
   font-weight: 600;
@@ -161,9 +202,10 @@ body {
   justify-content: space-between;
   gap: 1rem;
   padding: 0.65rem 1.25rem;
-  background: rgba(10, 12, 16, 0.85);
+  background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
 .nav-brand {
@@ -178,12 +220,17 @@ body {
   height: 2.5rem;
   border-radius: var(--radius-sm);
   background: var(--accent-muted);
-  border: 1px solid rgba(91, 140, 255, 0.35);
+  border: 1px solid rgba(74, 110, 229, 0.28);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.15rem;
+  color: var(--accent);
   flex-shrink: 0;
+}
+
+.nav-brand-mark .ui-icon {
+  width: var(--icon-size-nav);
+  height: var(--icon-size-nav);
 }
 
 .nav-brand-text {
@@ -261,7 +308,7 @@ body {
 }
 
 .btn-danger:hover {
-  border-color: rgba(255, 107, 122, 0.45);
+  border-color: rgba(201, 54, 77, 0.38);
   color: var(--danger);
 }
 
@@ -290,6 +337,11 @@ body {
   border-radius: var(--radius-sm);
 }
 
+#chatDrawer .drawer-toolbar .btn-icon .ui-icon {
+  width: var(--icon-size-toolbar);
+  height: var(--icon-size-toolbar);
+}
+
 /* --- Main dashboard --- */
 .app-main {
   flex: 1;
@@ -308,12 +360,6 @@ body {
 .dashboard-grid {
   display: grid;
   gap: 1.25rem;
-}
-
-@media (min-width: 900px) {
-  .dashboard-grid-top {
-    grid-template-columns: 1.2fr 1fr;
-  }
 }
 
 .card {
@@ -384,37 +430,6 @@ body {
   color: var(--text-muted);
 }
 
-.student-grid {
-  display: grid;
-  gap: 0.75rem;
-}
-
-@media (min-width: 480px) {
-  .student-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-.stat {
-  padding: 0.85rem 1rem;
-  background: var(--bg-elevated);
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-}
-
-.stat-label {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-subtle);
-}
-
-.stat-value {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-top: 0.2rem;
-}
-
 .empty-hint {
   font-size: 0.88rem;
   color: var(--text-muted);
@@ -459,7 +474,7 @@ table.data-table {
 }
 
 .data-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(15, 23, 42, 0.035);
 }
 
 .data-table .col-actions {
@@ -486,9 +501,17 @@ table.data-table {
 }
 
 .empty-state-icon {
-  font-size: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 0.5rem;
-  opacity: 0.85;
+  opacity: 0.95;
+  color: var(--accent);
+}
+
+.empty-state-icon .ui-icon {
+  width: var(--icon-size-empty);
+  height: var(--icon-size-empty);
 }
 
 /* --- Floating chat FAB --- */
@@ -502,19 +525,25 @@ table.data-table {
   border-radius: 50%;
   border: none;
   cursor: pointer;
-  background: linear-gradient(145deg, var(--accent), #3d5bbf);
-  color: #fff;
-  box-shadow: var(--shadow-md), 0 0 0 4px rgba(91, 140, 255, 0.15);
+  background: linear-gradient(145deg, var(--accent), #3558c9);
+  color: rgba(255, 255, 255, 0.98);
+  box-shadow: var(--shadow-md), 0 0 0 4px var(--accent-muted);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.35rem;
   transition: transform var(--transition), box-shadow var(--transition);
+}
+
+#chatFab .ui-icon {
+  width: var(--icon-size-fab);
+  height: var(--icon-size-fab);
+  position: relative;
+  z-index: 1;
 }
 
 #chatFab:hover {
   transform: scale(1.06);
-  box-shadow: var(--shadow-lg), 0 0 0 6px rgba(91, 140, 255, 0.12);
+  box-shadow: var(--shadow-lg), 0 0 0 6px var(--accent-muted);
 }
 
 #chatFab:active {
@@ -537,10 +566,10 @@ table.data-table {
   position: fixed;
   inset: 0;
   z-index: 55;
-  background: rgba(0, 0, 0, 0.38);
+  background: rgba(15, 23, 42, 0.28);
   opacity: 0;
   transition: opacity var(--transition);
-  backdrop-filter: blur(2px) saturate(1.08);
+  backdrop-filter: blur(3px) saturate(1.02);
 }
 
 #chatBackdrop.is-open {
@@ -664,14 +693,16 @@ table.data-table {
 }
 
 .message.user .bubble {
-  background: linear-gradient(160deg, #2a3f7a, #243560);
-  border-color: rgba(91, 140, 255, 0.28);
+  background: linear-gradient(165deg, #e8eefc, #dce6fb);
+  border-color: rgba(74, 110, 229, 0.28);
+  color: var(--text);
   border-bottom-right-radius: 4px;
 }
 
 .message.bot .bubble {
   background: var(--surface-2);
   border-color: var(--border);
+  color: var(--text);
   border-bottom-left-radius: 4px;
 }
 
@@ -687,8 +718,16 @@ table.data-table {
 }
 
 #chatWelcome .welcome-icon {
-  font-size: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 0.5rem;
+  color: var(--accent);
+}
+
+#chatWelcome .welcome-icon .ui-icon {
+  width: var(--icon-size-welcome);
+  height: var(--icon-size-welcome);
 }
 
 #chatWelcome h2 {
@@ -774,7 +813,7 @@ table.data-table {
 }
 
 #userInput:focus {
-  border-color: rgba(91, 140, 255, 0.55);
+  border-color: rgba(74, 110, 229, 0.45);
   box-shadow: 0 0 0 3px var(--accent-muted);
 }
 
@@ -836,15 +875,17 @@ table.data-table {
   padding: 0.65rem 1rem;
   border-radius: var(--radius);
   font-size: 0.85rem;
-  background: var(--surface-2);
+  color: var(--text);
+  background: var(--surface);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-md);
   animation: toastIn 0.35s ease;
 }
 
 .toast.error {
-  border-color: rgba(255, 107, 122, 0.4);
-  color: #ffc9cf;
+  background: #fff8f8;
+  border-color: rgba(201, 54, 77, 0.35);
+  color: #8f2438;
 }
 
 /* --- Animations --- */

@@ -18,3 +18,6 @@ backend/*.db
 
 backend/vectorstore/
 *.sqlite3
+
+
+backend/firebase_credentials.json

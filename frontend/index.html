@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#eef1f7" />
+  <meta name="color-scheme" content="light" />
   <title>المساعد الجامعي الذكي</title>
   <link rel="stylesheet" href="css/app.css" />
 </head>
@@ -10,7 +12,12 @@
   <!-- Login -->
   <div id="loginScreen">
     <div class="login-card">
-      <div class="login-logo" aria-hidden="true">🎓</div>
+      <div class="login-logo" aria-hidden="true">
+        <svg class="ui-icon ui-icon--outline" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a4 4 0 0 0-4-4H2z" />
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a4 4 0 0 1 4-4h6z" />
+        </svg>
+      </div>
       <div>
         <h1 class="login-title">المساعد الجامعي الذكي</h1>
         <p class="login-sub">بوابة موحّدة لموادك وللإجابة عن أسئلتك الجامعية</p>
@@ -32,7 +39,12 @@
   <div id="appShell">
     <header class="app-navbar">
       <div class="nav-brand">
-        <div class="nav-brand-mark" aria-hidden="true">🎓</div>
+        <div class="nav-brand-mark" aria-hidden="true">
+          <svg class="ui-icon ui-icon--outline" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a4 4 0 0 0-4-4H2z" />
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a4 4 0 0 1 4-4h6z" />
+          </svg>
+        </div>
         <div class="nav-brand-text">
           <div class="nav-brand-title">بوابة الطالب</div>
           <div class="nav-brand-sub">مساعد ذكي · إدارة المواد · أسئلة الجامعة</div>
@@ -56,35 +68,6 @@
             <span class="tag">إضافة وحذف المواد عبر المحادثة</span>
             <span class="tag">أسئلة السياسات والخدمات</span>
             <span class="tag">واجهة عربية كاملة</span>
-          </div>
-        </section>
-
-        <section class="card" aria-labelledby="studentCardTitle">
-          <div class="card-header">
-            <div>
-              <h2 class="card-title" id="studentCardTitle">البيانات الأكاديمية</h2>
-              <p class="card-desc">المعلومات المستخدمة في الردود الشخصية</p>
-            </div>
-          </div>
-          <div id="studentPanel">
-            <div class="empty-hint" id="studentLoading">جاري التحميل…</div>
-            <div id="studentContent" hidden>
-              <div class="student-grid">
-                <div class="stat">
-                  <div class="stat-label">التخصص</div>
-                  <div class="stat-value" id="studentMajor">—</div>
-                </div>
-                <div class="stat">
-                  <div class="stat-label">المعدل</div>
-                  <div class="stat-value" id="studentGpa">—</div>
-                </div>
-              </div>
-            </div>
-            <div id="studentEmpty" class="empty-state" hidden>
-              <div class="empty-state-icon">📋</div>
-              <p>لا توجد بيانات طالب مسجّلة بعد.</p>
-              <p class="empty-hint">يمكن إضافتها لاحقاً من لوحة الإدارة أو عبر الـ API.</p>
-            </div>
           </div>
         </section>
       </div>
@@ -115,7 +98,13 @@
           </table>
         </div>
         <div id="coursesEmpty" class="empty-state" hidden>
-          <div class="empty-state-icon">📚</div>
+          <div class="empty-state-icon" aria-hidden="true">
+            <svg class="ui-icon ui-icon--outline" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              <path d="M8 7h8M8 11h6" />
+            </svg>
+          </div>
           <p><strong>لا توجد مواد مسجّلة</strong></p>
           <p class="empty-hint">اطلب من المساعد إضافة مادة، أو استخدم صيغة مثل: أضف مادة رياضيات مع دكتور أحمد يوم الاثنين الساعة 10</p>
         </div>
@@ -125,7 +114,11 @@
     <!-- Floating assistant -->
     <button type="button" id="chatFab" aria-label="فتح المساعد الذكي" onclick="toggleChatDrawer()">
       <span class="fab-pulse" aria-hidden="true"></span>
-      <span aria-hidden="true">💬</span>
+      <svg class="ui-icon ui-icon--outline" viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 0 1-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+        />
+      </svg>
     </button>
 
     <div id="chatBackdrop" onclick="closeChatDrawer()"></div>
@@ -138,13 +131,23 @@
         </div>
         <div class="drawer-toolbar">
           <button type="button" class="btn btn-ghost" onclick="resetConversation()" title="مسح المحادثة محلياً">مسح المحادثة</button>
-          <button type="button" class="btn btn-icon btn-ghost" onclick="closeChatDrawer()" aria-label="إغلاق">✕</button>
+          <button type="button" class="btn btn-icon btn-ghost" onclick="closeChatDrawer()" aria-label="إغلاق">
+            <svg class="ui-icon ui-icon--outline" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
         </div>
       </div>
 
       <div id="chatMessages">
         <div id="chatWelcome">
-          <div class="welcome-icon" aria-hidden="true">👋</div>
+          <div class="welcome-icon" aria-hidden="true">
+            <svg class="ui-icon ui-icon--outline" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 0 1-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+              />
+            </svg>
+          </div>
           <h2>كيف أقدر أساعدك؟</h2>
           <p>أضف موادك، احذفها، اعرضها، أو اسأل عن أي شيء يخص الجامعة.</p>
         </div>
@@ -408,33 +411,6 @@
       }
     }
 
-    async function refreshStudent() {
-      const loading = el("studentLoading");
-      const content = el("studentContent");
-      const empty = el("studentEmpty");
-      loading.style.display = "block";
-      content.hidden = true;
-      empty.hidden = true;
-      try {
-        const res = await fetch(`${BACKEND_URL}/me/student`, { headers: await bearerHeaders() });
-        if (!res.ok) throw new Error(String(res.status));
-        const data = await res.json();
-        loading.style.display = "none";
-        if (data.student) {
-          el("studentMajor").textContent = data.student.major ?? "—";
-          el("studentGpa").textContent =
-            data.student.gpa != null ? String(data.student.gpa) : "—";
-          content.hidden = false;
-        } else {
-          empty.hidden = false;
-        }
-      } catch (e) {
-        console.error(e);
-        loading.style.display = "none";
-        empty.hidden = false;
-      }
-    }
-
     function showLogin() {
       el("loginScreen").style.display = "flex";
       el("appShell").classList.remove("is-visible");
@@ -563,7 +539,7 @@
         showApp(user);
         loadChatFromStorage(user.uid);
         renderChatFromHistory();
-        await Promise.all([refreshStudent(), refreshCourses()]);
+        await refreshCourses();
       } else {
         showLogin();
         chatHistory = [];

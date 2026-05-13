@@ -1,5 +1,4 @@
 from services.rag import get_relevant_docs
-from services.router import llm_route
 from services.user_service import get_student_data
 from services.memory import (
     add_to_memory,
@@ -61,28 +60,42 @@ def chat(query, user_id):
         "cancel",
         "reset"
     ]
+
     IDENTITY_QUESTIONS = {
-    "من انت": "أنا المساعد الجامعي الذكي 🎓\nأساعدك في المواد، معلومات الجامعة، والخدمات الطلابية.",
-    "مين انت": "أنا المساعد الجامعي الذكي 🎓",
-    "شو انت": "أنا مساعد جامعي مدعوم بالذكاء الاصطناعي 🤖",
-    "ما اسمك": "أنا المساعد الجامعي الذكي 🎓",
-    "مين صنعك": "تم تطويري كمشروع مساعد جامعي ذكي لخدمة الطلاب 🎓"
+        "من انت": "أنا المساعد الجامعي الذكي 🎓\nأساعدك في المواد، معلومات الجامعة، والخدمات الطلابية.",
+        "مين انت": "أنا المساعد الجامعي الذكي 🎓",
+        "شو انت": "أنا مساعد جامعي مدعوم بالذكاء الاصطناعي 🤖",
+        "ما اسمك": "أنا المساعد الجامعي الذكي 🎓",
+        "مين صنعك": "تم تطويري كمشروع مساعد جامعي ذكي لخدمة الطلاب 🎓"
     }
-    # IDENTITY_QUESTIONS
+
+    # =====================================
+    # 🤖 IDENTITY QUESTIONS
+    # =====================================
+
     if query.lower() in IDENTITY_QUESTIONS:
         clear_state(user_id)
         return IDENTITY_QUESTIONS[query.lower()]
 
-    # greetings
+    # =====================================
+    # 👋 GREETINGS
+    # =====================================
+
     if query.lower() in GREETINGS:
         clear_state(user_id)
         return GREETINGS[query.lower()]
 
-    # thanks
+    # =====================================
+    # 🌸 THANKS
+    # =====================================
+
     if query.lower() in THANKS:
         return THANKS[query.lower()]
 
-    # reset
+    # =====================================
+    # 🔄 RESET
+    # =====================================
+
     if query.lower() in RESET_WORDS:
         clear_state(user_id)
         return "تم إلغاء العملية الحالية ✅"
@@ -90,6 +103,7 @@ def chat(query, user_id):
     # =====================================
     # 🔴 HANDLE DELETE SELECTION
     # =====================================
+
     if state and state.get("step") == "choose_delete":
 
         try:
@@ -109,6 +123,7 @@ def chat(query, user_id):
     # =====================================
     # 🟡 HANDLE MISSING (add course flow)
     # =====================================
+
     if state and state.get("step") == "collect_missing":
 
         data = state["data"]
@@ -151,11 +166,13 @@ def chat(query, user_id):
     # =====================================
     # 🧠 INTENT
     # =====================================
+
     intent = detect_intent(query)
 
     # =====================================
     # 🟢 GET COURSES
     # =====================================
+
     if intent == "get_courses":
 
         courses = get_courses_by_user(user_id)
@@ -185,6 +202,7 @@ def chat(query, user_id):
     # =====================================
     # 🔴 DELETE COURSE
     # =====================================
+
     if intent == "delete_course":
 
         name = extract_course_name(query)
@@ -194,7 +212,7 @@ def chat(query, user_id):
 
         courses = get_courses_by_user(user_id)
 
-        # 1. exact match
+        # exact match
         for c in courses:
 
             if name in c.name:
@@ -205,7 +223,7 @@ def chat(query, user_id):
 
                 return f"تم حذف مادة {c.name} بنجاح ✅"
 
-        # 2. semantic match
+        # semantic match
         matches = find_top_matches(name, courses)
 
         if not matches:
@@ -240,6 +258,7 @@ def chat(query, user_id):
     # =====================================
     # 🟡 ADD COURSE
     # =====================================
+
     if intent == "add_course":
 
         data = extract_course_details(query)
@@ -279,111 +298,60 @@ def chat(query, user_id):
         )
 
     # =====================================
-    # 🔥 NORMAL (RAG / PERSONAL / HYBRID)
+    # 📚 NORMAL QUESTIONS → RAG
     # =====================================
-    route = llm_route(query)
 
-    # =====================================
-    # 👤 PERSONAL
-    # =====================================
-    if route == "personal":
+    docs = get_relevant_docs(query)
 
-        student = get_student_data(user_id)
+    context = "\n\n---\n\n".join(
+        [d.page_content for d in docs]
+    )
 
-        if not student:
-            return "لا توجد بيانات محفوظة لك حالياً."
+    prompt = f"""
+              أنت مساعد جامعي خاص بجامعة بوليتكنك فلسطين فقط.
 
-        prompt = f"""
-أنت مساعد جامعي عربي.
+          قواعد مهمة جداً:
 
-بيانات الطالب:
-- التخصص: {student['major']}
-- المعدل: {student['gpa']}
+          * أجب اعتماداً على المعلومات الموجودة في السياق فقط.
 
-سؤال المستخدم:
-{query}
+          * ممنوع اختراع معلومات أو التخمين.
 
-أجب بالعربية فقط.
-"""
+          * ممنوع ذكر جامعات أخرى.
 
-        return run_llm(prompt, history, summary, user_id, query)
+          * إذا لم تجد الإجابة بشكل واضح داخل السياق فقل:
+            "لا أملك معلومات كافية حول ذلك."
 
-    # =====================================
-    # 📚 RAG
-    # =====================================
-    elif route == "rag":
+          * لا تستخدم معلوماتك العامة.
 
-        docs = get_relevant_docs(query)
+          * لا تذكر أي معلومة غير موجودة في الـ context.
 
-        context = "\n\n---\n\n".join(
-            [d.page_content for d in docs]
-        )
+          * إذا كان النص داخل السياق مشوشاً أو غير مفهوم فتجاهله.
 
-        prompt = f"""
-أنت مساعد جامعي ذكي يتحدث العربية فقط.
+          * أجب بالعربية فقط.
 
-تعليمات مهمة:
-- أجب بالعربية فقط
-- استخدم المعلومات الموجودة في السياق فقط
-- لا تخترع أي معلومة
-- إذا كانت المعلومات بالإنجليزية قم بترجمتها للعربية
-- اجعل الإجابة مرتبة وواضحة
-- استخدم تعداداً نقطياً أو أرقاماً عند وجود عدة عناصر
-- إذا لم تجد معلومات كافية قل:
-"لا أملك معلومات كافية حول ذلك."
+          * كن مختصراً وواضحاً.
 
-السياق:
-{context}
+          * لا تكرر السؤال.
 
-سؤال المستخدم:
-{query}
+          * لا تضع مقدمات طويلة.
 
-الإجابة:
-"""
+          إذا كان السؤال عن:
 
-        return run_llm(prompt, history, summary, user_id, query)
+          * المواد → ساعد المستخدم بإدارة مواده.
+          * سياسات الجامعة → استخدم الـ RAG فقط.
+          * الأسئلة العامة → أجب فقط إذا كانت موجودة في السياق.
 
-    # =====================================
-    # 🔀 HYBRID
-    # =====================================
-    elif route == "hybrid":
+          السياق:
+          {context}
 
-        student = get_student_data(user_id)
+          سؤال المستخدم:
+          {query}
 
-        if not student:
-            return "لا توجد بيانات محفوظة لك حالياً."
+          الإجابة:
+          """
 
-        docs = get_relevant_docs(query)
+    return run_llm(prompt, history, summary, user_id, query)
 
-        context = "\n\n---\n\n".join(
-            [d.page_content for d in docs]
-        )
-
-        prompt = f"""
-أنت مساعد جامعي عربي.
-
-بيانات الطالب:
-- التخصص: {student['major']}
-- المعدل: {student['gpa']}
-
-معلومات الجامعة:
-{context}
-
-تعليمات:
-- أجب بالعربية فقط
-- لا تخترع معلومات
-- استخدم البيانات المتوفرة فقط
-- اجعل الإجابة مرتبة وواضحة
-
-سؤال المستخدم:
-{query}
-
-الإجابة:
-"""
-
-        return run_llm(prompt, history, summary, user_id, query)
-
-    return "لم أفهم سؤالك."
 
 # =====================================
 # HELPERS
@@ -411,6 +379,7 @@ def format_course_response(title, data):
 
 
 def run_llm(prompt, history, summary, user_id, query):
+
     system_messages = (
         [{"role": "system", "content": f"ملخص المحادثة السابقة: {summary}"}]
         if summary else []
@@ -443,3 +412,4 @@ def clean_time_display(time):
     if not time or time == "غير معروف":
         return "—"
     return time.replace("الساعة", "").strip()
+  
